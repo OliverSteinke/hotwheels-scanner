@@ -127,6 +127,7 @@ body {
 }
 
 .photo-zone {
+  display: flex;
   background: var(--surface);
   border: 1.5px dashed var(--surface3);
   border-radius: 12px;
@@ -613,7 +614,7 @@ body {
   <div id="scan-section">
     <div class="divider">Photos</div>
     <div class="photo-row">
-      <div class="photo-zone" id="zone-front" onclick="triggerUpload('front')">
+      <label class="photo-zone" id="zone-front" for="inp-front">
         <img class="preview" id="prev-front" style="display:none">
         <div class="zone-placeholder" id="ph-front">
           <div class="zone-icon">
@@ -623,10 +624,10 @@ body {
           <div class="zone-hint">Car face side</div>
         </div>
         <button class="remove-btn" id="rm-front" onclick="removePhoto('front', event)">×</button>
-        <input type="file" id="inp-front" accept="image/*" capture="environment" onchange="handleUpload('front', this)">
-      </div>
+        <input type="file" id="inp-front" accept="image/*" capture="environment" onchange="handleUpload('front', this)" style="display:none">
+      </label>
 
-      <div class="photo-zone" id="zone-back" onclick="triggerUpload('back')">
+      <label class="photo-zone" id="zone-back" for="inp-back">
         <img class="preview" id="prev-back" style="display:none">
         <div class="zone-placeholder" id="ph-back">
           <div class="zone-icon">
@@ -636,8 +637,8 @@ body {
           <div class="zone-hint">Series &amp; info</div>
         </div>
         <button class="remove-btn" id="rm-back" onclick="removePhoto('back', event)">×</button>
-        <input type="file" id="inp-back" accept="image/*" capture="environment" onchange="handleUpload('back', this)">
-      </div>
+        <input type="file" id="inp-back" accept="image/*" capture="environment" onchange="handleUpload('back', this)" style="display:none">
+      </label>
     </div>
 
     <button class="scan-btn" id="scan-btn" onclick="scanCar()" disabled>
@@ -653,11 +654,10 @@ body {
 <div class="toast" id="toast">Copied!</div>
 
 <script>
-const imgs = { front: null, back: null };
+// ▼ PASTE YOUR CLOUDFLARE WORKER URL HERE ▼
+const PROXY_URL = 'https://calm-bread-a70e.steinke-oliver.workers.dev';
 
-function triggerUpload(side) {
-  document.getElementById('inp-' + side).click();
-}
+const imgs = { front: null, back: null };
 
 function handleUpload(side, input) {
   const file = input.files[0];
@@ -677,6 +677,7 @@ function handleUpload(side, input) {
 }
 
 function removePhoto(side, e) {
+  e.preventDefault();
   e.stopPropagation();
   imgs[side] = null;
   document.getElementById('prev-' + side).style.display = 'none';
@@ -746,7 +747,7 @@ Extract ALL fields. Return ONLY valid JSON (no markdown, no backticks, no preamb
 Market value guidance: Regular mainline = $1–5 carded. Treasure Hunt = $5–15. Super Treasure Hunt = $15–60+. ZAMAC = $3–10. Exclusives vary. Base on typical eBay sold listings.` });
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(PROXY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -755,16 +756,18 @@ Market value guidance: Regular mainline = $1–5 carded. Treasure Hunt = $5–15
         messages: [{ role: 'user', content }]
       })
     });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error('Server error ' + res.status + ': ' + errText.slice(0, 200));
+    }
     const data = await res.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     const raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
     const car = JSON.parse(raw.replace(/```json|```/g, '').trim());
     renderResult(car);
   } catch (err) {
-    document.getElementById('results-area').innerHTML = `
-      <div class="error-box">
-        Could not analyze the image. Please try again with a clearer, well-lit photo of the package front and/or back.<br><br>
-        <small style="opacity:0.6">${err.message}</small>
-      </div>`;
+    document.getElementById('results-area').innerHTML =
+      '<div class="error-box"><strong>Scan failed</strong><br><br>' + err.message + '<br><br><small style="opacity:0.6">Check that your PROXY_URL is set correctly in the app file.</small></div>';
   }
 
   btn.disabled = false;

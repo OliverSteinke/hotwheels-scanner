@@ -664,16 +664,44 @@ function handleUpload(side, input) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    imgs[side] = e.target.result;
-    const prev = document.getElementById('prev-' + side);
-    prev.src = e.target.result;
-    prev.style.display = 'block';
-    document.getElementById('ph-' + side).style.display = 'none';
-    document.getElementById('rm-' + side).style.display = 'flex';
-    document.getElementById('zone-' + side).classList.add('filled');
-    updateScanBtn();
+    compressImage(e.target.result, 1600, 0.82, compressed => {
+      imgs[side] = compressed;
+      const prev = document.getElementById('prev-' + side);
+      prev.src = compressed;
+      prev.style.display = 'block';
+      document.getElementById('ph-' + side).style.display = 'none';
+      document.getElementById('rm-' + side).style.display = 'flex';
+      document.getElementById('zone-' + side).classList.add('filled');
+      updateScanBtn();
+    });
   };
   reader.readAsDataURL(file);
+}
+
+function compressImage(dataUrl, maxPx, quality, callback) {
+  const img = new Image();
+  img.onload = () => {
+    let w = img.width, h = img.height;
+    if (w > maxPx || h > maxPx) {
+      if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+      else { w = Math.round(w * maxPx / h); h = maxPx; }
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    const compressed = canvas.toDataURL('image/jpeg', quality);
+    // If still over 4MB, compress harder
+    const bytes = Math.round((compressed.length * 3) / 4);
+    if (bytes > 4 * 1024 * 1024) {
+      const canvas2 = document.createElement('canvas');
+      canvas2.width = Math.round(w * 0.75); canvas2.height = Math.round(h * 0.75);
+      canvas2.getContext('2d').drawImage(img, 0, 0, canvas2.width, canvas2.height);
+      callback(canvas2.toDataURL('image/jpeg', 0.75));
+    } else {
+      callback(compressed);
+    }
+  };
+  img.src = dataUrl;
 }
 
 function removePhoto(side, e) {

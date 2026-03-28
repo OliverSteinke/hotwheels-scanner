@@ -127,6 +127,7 @@ body {
 }
 
 .photo-zone {
+  display: flex;
   background: var(--surface);
   border: 1.5px dashed var(--surface3);
   border-radius: 12px;
@@ -613,7 +614,7 @@ body {
   <div id="scan-section">
     <div class="divider">Photos</div>
     <div class="photo-row">
-      <div class="photo-zone" id="zone-front" onclick="triggerUpload('front')">
+      <label class="photo-zone" id="zone-front" for="inp-front">
         <img class="preview" id="prev-front" style="display:none">
         <div class="zone-placeholder" id="ph-front">
           <div class="zone-icon">
@@ -623,10 +624,10 @@ body {
           <div class="zone-hint">Car face side</div>
         </div>
         <button class="remove-btn" id="rm-front" onclick="removePhoto('front', event)">×</button>
-        <input type="file" id="inp-front" accept="image/*" capture="environment" onchange="handleUpload('front', this)">
-      </div>
+        <input type="file" id="inp-front" accept="image/*" capture="environment" onchange="handleUpload('front', this)" style="display:none">
+      </label>
 
-      <div class="photo-zone" id="zone-back" onclick="triggerUpload('back')">
+      <label class="photo-zone" id="zone-back" for="inp-back">
         <img class="preview" id="prev-back" style="display:none">
         <div class="zone-placeholder" id="ph-back">
           <div class="zone-icon">
@@ -636,8 +637,8 @@ body {
           <div class="zone-hint">Series &amp; info</div>
         </div>
         <button class="remove-btn" id="rm-back" onclick="removePhoto('back', event)">×</button>
-        <input type="file" id="inp-back" accept="image/*" capture="environment" onchange="handleUpload('back', this)">
-      </div>
+        <input type="file" id="inp-back" accept="image/*" capture="environment" onchange="handleUpload('back', this)" style="display:none">
+      </label>
     </div>
 
     <button class="scan-btn" id="scan-btn" onclick="scanCar()" disabled>
@@ -654,10 +655,6 @@ body {
 
 <script>
 const imgs = { front: null, back: null };
-
-function triggerUpload(side) {
-  document.getElementById('inp-' + side).click();
-}
 
 function handleUpload(side, input) {
   const file = input.files[0];
@@ -677,6 +674,7 @@ function handleUpload(side, input) {
 }
 
 function removePhoto(side, e) {
+  e.preventDefault();
   e.stopPropagation();
   imgs[side] = null;
   document.getElementById('prev-' + side).style.display = 'none';

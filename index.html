@@ -1099,35 +1099,37 @@ async function lookupCar() {
   if (modelName) parts.push('Model/Car Name: ' + modelName);
   if (year) parts.push('Year: ' + year);
 
-  const prompt = 'You are a Hot Wheels expert and collector with deep knowledge of every casting, series, and variant ever produced.
-
-The user has provided the following information about a Hot Wheels car:
-' + parts.join('
-') + '
-
-Using your knowledge of Hot Wheels history, identify this car as accurately as possible and fill in all fields. Return ONLY valid JSON (no markdown, no backticks, no preamble):
-
-{
-  "car_number": "Toy/item # if known or provided, else null",
-  "collector_number": "Collector # like 097/250 if known, else null",
-  "model_name": "Car model/casting name",
-  "series": "Series name if known, else null",
-  "series_number": "Position in series like 7/10 if known, else null",
-  "year_of_release": "4-digit year",
-  "color": "Primary body color if known, else null",
-  "wheel_type": "Wheel type code if known, else null",
-  "is_treasure_hunt": true or false,
-  "is_super_treasure_hunt": true or false,
-  "is_new_model": true or false,
-  "special_notes": "Any notable details about this casting, series, variants, or collector significance. Be specific and helpful.",
-  "market_value_low": estimated low price USD as number,
-  "market_value_mid": estimated mid price USD as number,
-  "market_value_high": estimated high price USD as number,
-  "market_confidence": "low", "medium", or "high",
-  "market_notes": "What drives value for this specific car"
-}
-
-Market value guidance: Regular mainline = $1-5 carded. Treasure Hunt = $5-15. Super Treasure Hunt = $15-60+. ZAMAC = $3-10. If the toy number or year is ambiguous and multiple variants exist, base values on the most common/likely version and note variants in special_notes.';
+  const promptLines = [
+    'You are a Hot Wheels expert and collector with deep knowledge of every casting, series, and variant ever produced.',
+    '',
+    'The user has provided the following information about a Hot Wheels car:',
+    parts.join('\n'),
+    '',
+    'Using your knowledge of Hot Wheels history, identify this car as accurately as possible and fill in all fields. Return ONLY valid JSON (no markdown, no backticks, no preamble):',
+    '',
+    '{',
+    '  "car_number": "Toy/item # if known or provided, else null",',
+    '  "collector_number": "Collector # like 097/250 if known, else null",',
+    '  "model_name": "Car model/casting name",',
+    '  "series": "Series name if known, else null",',
+    '  "series_number": "Position in series like 7/10 if known, else null",',
+    '  "year_of_release": "4-digit year",',
+    '  "color": "Primary body color if known, else null",',
+    '  "wheel_type": "Wheel type code if known, else null",',
+    '  "is_treasure_hunt": true or false,',
+    '  "is_super_treasure_hunt": true or false,',
+    '  "is_new_model": true or false,',
+    '  "special_notes": "Any notable details about this casting, series, variants, or collector significance. Be specific and helpful.",',
+    '  "market_value_low": estimated low price USD as number,',
+    '  "market_value_mid": estimated mid price USD as number,',
+    '  "market_value_high": estimated high price USD as number,',
+    '  "market_confidence": "low", "medium", or "high",',
+    '  "market_notes": "What drives value for this specific car"',
+    '}',
+    '',
+    'Market value guidance: Regular mainline = $1-5 carded. Treasure Hunt = $5-15. Super Treasure Hunt = $15-60+. ZAMAC = $3-10. If the toy number or year is ambiguous and multiple variants exist, base values on the most common/likely version and note variants in special_notes.'
+  ];
+  const prompt = promptLines.join('\n')
 
   try {
     const res = await fetch(PROXY_URL, {

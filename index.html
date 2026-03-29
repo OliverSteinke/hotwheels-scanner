@@ -698,11 +698,11 @@ body {
 
     <!-- Mode tabs -->
     <div class="mode-tabs">
-      <button class="mode-tab active" id="tab-photo" onclick="switchMode('photo')">
+      <button class="mode-tab active" id="tab-photo" data-mode="photo">
         <svg viewBox="0 0 24 24"><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h4.05l1.83-2h4.24l1.83 2H20v12zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
         Photo Scan
       </button>
-      <button class="mode-tab" id="tab-manual" onclick="switchMode('manual')">
+      <button class="mode-tab" id="tab-manual" data-mode="manual">
         <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12zM7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
         Manual Lookup
       </button>
@@ -1169,6 +1169,19 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2200);
 }
+
+// Tab event listeners — more reliable than onclick on Android
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.mode-tab').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      switchMode(this.dataset.mode);
+    });
+    btn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      switchMode(this.dataset.mode);
+    });
+  });
+});
 
 function scanAgain() {
   removePhoto('front', { preventDefault: () => {}, stopPropagation: () => {} });

@@ -589,7 +589,7 @@ body {
 /* Mode tabs */
 .mode-tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -607,15 +607,16 @@ body {
   background: transparent;
   color: var(--text2);
   font-family: var(--font-display);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   transition: background 0.15s, color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
@@ -703,6 +704,10 @@ body {
         <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12zM7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
         Manual Lookup
       </button>
+      <button class="mode-tab" id="tab-loose" data-mode="loose" onclick="switchMode('loose')">
+        <svg viewBox="0 0 24 24"><path d="M17.5 4.5c-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5-1.45 0-2.99.22-4.28.79C1.49 5.62 1 6.33 1 7.14v11.28c0 1.3 1.22 2.26 2.48 1.94.98-.25 2.02-.36 3.02-.36 1.56 0 3.22.26 4.56.92.14.07.29.1.44.1s.3-.03.44-.1c1.34-.67 3-.92 4.56-.92 1 0 2.04.11 3.02.36 1.26.33 2.48-.63 2.48-1.94V7.14c0-.81-.49-1.52-1.22-1.85-1.28-.57-2.82-.79-4.28-.79zM21 17.23c0 .63-.58 1.09-1.2.94-.75-.19-1.86-.34-2.8-.34-1.6 0-3.93.46-5.5 1.32V8c1.57-.86 3.9-1.32 5.5-1.32.94 0 1.96.14 2.8.34.45.12.75.52.75.97v9.24H21z"/></svg>
+        Loose Car
+      </button>
   </div>
 
   <div id="scan-section">
@@ -766,6 +771,49 @@ body {
       <button class="scan-btn" id="lookup-btn" onclick="lookupCar()" disabled>
         <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
         Look Up This Car
+      </button>
+    </div>
+
+    <!-- Loose car scan mode -->
+    <div class="loose-section" id="loose-section" style="display:none">
+      <div class="divider">Loose Car Photos</div>
+      <div class="photo-row">
+        <div class="photo-zone" id="zone-side" onclick="document.getElementById('inp-side').click()">
+          <img class="preview" id="prev-side" style="display:none">
+          <div class="zone-placeholder" id="ph-side">
+            <div class="zone-icon">
+              <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+            </div>
+            <div class="zone-label">Side / Front</div>
+            <div class="zone-hint">Show the car body</div>
+          </div>
+          <button class="remove-btn" id="rm-side" onclick="removeLoosePhoto('side', event)">×</button>
+          <input type="file" id="inp-side" accept="image/*" capture="environment" onchange="handleLooseUpload('side', this)" style="display:none" onclick="event.stopPropagation()">
+        </div>
+
+        <div class="photo-zone" id="zone-base" onclick="document.getElementById('inp-base').click()">
+          <img class="preview" id="prev-base" style="display:none">
+          <div class="zone-placeholder" id="ph-base">
+            <div class="zone-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.86.18-1 0-2.21-1.79-4-4-4s-4 1.79-4 4c0 .14.11.56.18 1H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-3c1.1 0 2 .9 2 2 0 .14-.11.56-.18 1h-3.64C12.11 5.56 12 5.14 12 5c0-1.1.9-2 2-2zm6 17H8V8h12v12z"/></svg>
+            </div>
+            <div class="zone-label">Base / Bottom</div>
+            <div class="zone-hint">Show the underside</div>
+          </div>
+          <button class="remove-btn" id="rm-base" onclick="removeLoosePhoto('base', event)">×</button>
+          <input type="file" id="inp-base" accept="image/*" capture="environment" onchange="handleLooseUpload('base', this)" style="display:none" onclick="event.stopPropagation()">
+        </div>
+      </div>
+
+      <div class="notes-card" style="margin-bottom:14px;background:var(--surface2)">
+        <div class="notes-text" style="font-size:12px;color:var(--text2)">
+          <strong style="color:var(--text)">Tips:</strong> Side photo — shoot straight-on to show the tampos clearly. Base photo — flip the car over to capture the casting name, country stamp, and any date codes.
+        </div>
+      </div>
+
+      <button class="scan-btn" id="loose-scan-btn" onclick="scanLooseCar()" disabled>
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M22 5h-6v6h6V5zm-6 8h1.5v1.5H16V13zm1.5 1.5H19V16h-1.5v-1.5zM19 13h1.5v1.5H19V13zm-3 3h1.5v1.5H16V16zm1.5 1.5H19V19h-1.5v-1.5zM19 16h1.5v1.5H19V16zm1.5-1.5H22V16h-1.5v-1.5zm0 3H22V19h-1.5v-1.5zM22 13h-1.5v1.5H22V13z"/></svg>
+        Identify This Car
       </button>
     </div>
 
@@ -1056,22 +1104,13 @@ function renderResult(car) {
 
 
 function switchMode(mode) {
-  var photoSection = document.getElementById('photo-section');
-  var manualSection = document.getElementById('manual-section');
-  var tabPhoto = document.getElementById('tab-photo');
-  var tabManual = document.getElementById('tab-manual');
-
-  if (mode === 'photo') {
-    photoSection.style.display = 'block';
-    manualSection.style.display = 'none';
-    tabPhoto.classList.add('active');
-    tabManual.classList.remove('active');
-  } else {
-    photoSection.style.display = 'none';
-    manualSection.style.display = 'block';
-    tabPhoto.classList.remove('active');
-    tabManual.classList.add('active');
-  }
+  document.getElementById('photo-section').style.display  = mode === 'photo'  ? 'block' : 'none';
+  document.getElementById('manual-section').style.display = mode === 'manual' ? 'block' : 'none';
+  document.getElementById('loose-section').style.display  = mode === 'loose'  ? 'block' : 'none';
+  ['tab-photo','tab-manual','tab-loose'].forEach(function(id) {
+    document.getElementById(id).classList.remove('active');
+  });
+  document.getElementById('tab-' + mode).classList.add('active');
   document.getElementById('results-area').innerHTML = '';
 }
 
@@ -1160,6 +1199,131 @@ async function lookupCar() {
   updateLookupBtn();
 }
 
+
+const looseImgs = { side: null, base: null };
+
+function handleLooseUpload(side, input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    compressImage(e.target.result, 1600, 0.82, function(compressed) {
+      looseImgs[side] = compressed;
+      var prev = document.getElementById('prev-' + side);
+      prev.src = compressed;
+      prev.style.display = 'block';
+      document.getElementById('ph-' + side).style.display = 'none';
+      document.getElementById('rm-' + side).style.display = 'flex';
+      document.getElementById('zone-' + side).classList.add('filled');
+      updateLooseBtn();
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeLoosePhoto(side, e) {
+  e.preventDefault();
+  e.stopPropagation();
+  looseImgs[side] = null;
+  document.getElementById('prev-' + side).style.display = 'none';
+  document.getElementById('ph-' + side).style.display = 'flex';
+  document.getElementById('rm-' + side).style.display = 'none';
+  document.getElementById('zone-' + side).classList.remove('filled');
+  document.getElementById('inp-' + side).value = '';
+  updateLooseBtn();
+}
+
+function updateLooseBtn() {
+  document.getElementById('loose-scan-btn').disabled = !(looseImgs.side || looseImgs.base);
+}
+
+async function scanLooseCar() {
+  var btn = document.getElementById('loose-scan-btn');
+  btn.disabled = true;
+  btn.textContent = 'Scanning...';
+
+  document.getElementById('results-area').innerHTML =
+    '<div class="loading-box"><div class="spinner"></div><div class="loading-title">Analyzing Car</div><div class="loading-sub">Identifying casting, tampos &amp; market value…</div></div>';
+  document.getElementById('results-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  var content = [];
+  if (looseImgs.side) {
+    var b64 = looseImgs.side.split(',')[1];
+    var mime = looseImgs.side.split(';')[0].split(':')[1];
+    content.push({ type: 'image', source: { type: 'base64', media_type: mime, data: b64 } });
+    content.push({ type: 'text', text: 'This is a SIDE / FRONT photo of a loose Hot Wheels car (out of packaging).' });
+  }
+  if (looseImgs.base) {
+    var b64b = looseImgs.base.split(',')[1];
+    var mimeb = looseImgs.base.split(';')[0].split(':')[1];
+    content.push({ type: 'image', source: { type: 'base64', media_type: mimeb, data: b64b } });
+    content.push({ type: 'text', text: 'This is a BASE / BOTTOM photo of the same loose Hot Wheels car. Look for the casting name, country of manufacture, and any date codes stamped into the base.' });
+  }
+
+  var loosePromptLines = [
+    'You are a Hot Wheels expert and collector. Examine the photo(s) of this loose Hot Wheels car (out of its original packaging).',
+    '',
+    'Use visual clues from the body shape, color, tampos/decorations, wheel type, and any text stamped on the base to identify the car.',
+    'The base often has the casting name, country (China, Malaysia, Thailand, etc.), and sometimes a year code.',
+    '',
+    'Return ONLY valid JSON (no markdown, no backticks, no preamble):',
+    '{',
+    '  "car_number": "Toy # if visible on base or identifiable, else null",',
+    '  "collector_number": "Collector # if visible, else null",',
+    '  "model_name": "Car model/casting name — use base stamp or visual identification",',
+    '  "series": "Most likely series for this casting/color combo, or null",',
+    '  "series_number": "Position in series if identifiable, else null",',
+    '  "year_of_release": "Year from base stamp or best estimate from tampo/color",',
+    '  "color": "Primary body color",',
+    '  "wheel_type": "Wheel type code if identifiable (5SP, PR5, DD8, OR, etc.), else null",',
+    '  "country": "Country of manufacture from base stamp if visible",',
+    '  "condition": "Brief condition assessment — loose/played, good, excellent, near-mint",',
+    '  "is_treasure_hunt": true or false,',
+    '  "is_super_treasure_hunt": true or false,',
+    '  "special_notes": "Tampo details, any damage or wear visible, base stamp details, notable features. Be specific.",',
+    '  "market_value_low": estimated low USD for this car in loose condition as number,',
+    '  "market_value_mid": estimated mid USD for loose in this condition as number,',
+    '  "market_value_high": estimated high USD if loose near-mint as number,',
+    '  "market_confidence": "low", "medium", or "high",',
+    '  "market_notes": "Note that loose cars are worth less than carded. Explain what drives value."',
+    '}',
+    '',
+    'Market value guidance for LOOSE cars: Regular mainline loose = $0.25-2. Treasure Hunt loose = $2-8. Super Treasure Hunt loose = $8-30+. Condition matters significantly for loose cars.'
+  ];
+
+  content.push({ type: 'text', text: loosePromptLines.join('\n') });
+
+  try {
+    var res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: content }]
+      })
+    });
+    if (!res.ok) {
+      var errText = await res.text();
+      throw new Error('Server error ' + res.status + ': ' + errText.slice(0, 500));
+    }
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    var raw = data.content.filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('');
+    var car = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    if (car.condition) car.special_notes = (car.condition ? 'Condition: ' + car.condition + '. ' : '') + (car.special_notes || '');
+    if (car.country) car.special_notes = (car.country ? 'Made in ' + car.country + '. ' : '') + (car.special_notes || '');
+    renderResult(car);
+  } catch(err) {
+    document.getElementById('results-area').innerHTML =
+      '<div class="error-box"><strong>Scan failed</strong><br><br>' + err.message + '</div>';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M22 5h-6v6h6V5zm-6 8h1.5v1.5H16V13zm1.5 1.5H19V16h-1.5v-1.5zM19 13h1.5v1.5H19V13zm-3 3h1.5v1.5H16V16zm1.5 1.5H19V19h-1.5v-1.5zM19 16h1.5v1.5H19V16zm1.5-1.5H22V16h-1.5v-1.5zm0 3H22V19h-1.5v-1.5zM22 13h-1.5v1.5H22V13z"/></svg> Identify This Car';
+  updateLooseBtn();
+}
+
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
 }
@@ -1178,6 +1342,8 @@ function scanAgain() {
   document.getElementById('inp-modelname').value = '';
   document.getElementById('inp-year').value = '';
   updateLookupBtn();
+  removeLoosePhoto('side', { preventDefault: function(){}, stopPropagation: function(){} });
+  removeLoosePhoto('base', { preventDefault: function(){}, stopPropagation: function(){} });
   document.getElementById('results-area').innerHTML = '';
   document.getElementById('scan-section').scrollIntoView({ behavior: 'smooth' });
 }

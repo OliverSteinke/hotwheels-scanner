@@ -836,7 +836,7 @@ function handleUpload(side, input) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    compressImage(e.target.result, 1600, 0.82, compressed => {
+    compressImage(e.target.result, 1024, 0.72, compressed => {
       imgs[side] = compressed;
       const prev = document.getElementById('prev-' + side);
       prev.src = compressed;
@@ -853,24 +853,44 @@ function handleUpload(side, input) {
 function compressImage(dataUrl, maxPx, quality, callback) {
   const img = new Image();
   img.onload = () => {
-    let w = img.width, h = img.height;
-    if (w > maxPx || h > maxPx) {
-      if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
-      else { w = Math.round(w * maxPx / h); h = maxPx; }
-    }
-    const canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-    const compressed = canvas.toDataURL('image/jpeg', quality);
-    // If still over 4MB, compress harder
-    const bytes = Math.round((compressed.length * 3) / 4);
-    if (bytes > 4 * 1024 * 1024) {
-      const canvas2 = document.createElement('canvas');
-      canvas2.width = Math.round(w * 0.75); canvas2.height = Math.round(h * 0.75);
-      canvas2.getContext('2d').drawImage(img, 0, 0, canvas2.width, canvas2.height);
-      callback(canvas2.toDataURL('image/jpeg', 0.75));
-    } else {
-      callback(compressed);
+    try {
+      let w = img.width, h = img.height;
+      // Step 1: scale down to maxPx on longest side
+      if (w > maxPx || h > maxPx) {
+        if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+        else { w = Math.round(w * maxPx / h); h = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', quality);
+      // Free canvas memory immediately
+      canvas.width = 0; canvas.height = 0;
+      // Step 2: if still over 1.5MB, compress harder
+      const bytes = Math.round((compressed.length * 3) / 4);
+      if (bytes > 1.5 * 1024 * 1024) {
+        const w2 = Math.round(w * 0.6), h2 = Math.round(h * 0.6);
+        const canvas2 = document.createElement('canvas');
+        canvas2.width = w2; canvas2.height = h2;
+        canvas2.getContext('2d').drawImage(img, 0, 0, w2, h2);
+        const result = canvas2.toDataURL('image/jpeg', 0.65);
+        canvas2.width = 0; canvas2.height = 0;
+        callback(result);
+      } else {
+        callback(compressed);
+      }
+    } catch(e) {
+      // If memory error on large image, try tiny fallback
+      try {
+        const w3 = 640, h3 = Math.round(img.height * 640 / img.width);
+        const canvas3 = document.createElement('canvas');
+        canvas3.width = w3; canvas3.height = h3;
+        canvas3.getContext('2d').drawImage(img, 0, 0, w3, h3);
+        callback(canvas3.toDataURL('image/jpeg', 0.6));
+        canvas3.width = 0; canvas3.height = 0;
+      } catch(e2) {
+        callback(dataUrl); // last resort: use original
+      }
     }
   };
   img.src = dataUrl;
@@ -1207,7 +1227,7 @@ function handleLooseUpload(side, input) {
   if (!file) return;
   var reader = new FileReader();
   reader.onload = function(e) {
-    compressImage(e.target.result, 1600, 0.82, function(compressed) {
+    compressImage(e.target.result, 1024, 0.72, function(compressed) {
       looseImgs[side] = compressed;
       var prev = document.getElementById('prev-' + side);
       prev.src = compressed;

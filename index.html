@@ -585,6 +585,89 @@ body {
 
 .scan-again-btn:active { background: var(--surface2); }
 
+
+/* Mode tabs */
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 16px;
+  gap: 4px;
+}
+
+.mode-tab {
+  padding: 10px 8px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mode-tab.active {
+  background: var(--red);
+  color: white;
+}
+
+.mode-tab svg { width: 15px; height: 15px; fill: currentColor; }
+
+/* Manual lookup */
+.manual-section { display: none; }
+.manual-section.visible { display: block; }
+.photo-section { display: block; }
+.photo-section.hidden { display: none; }
+
+.input-group {
+  margin-bottom: 12px;
+}
+
+.input-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text3);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.text-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+
+.text-input:focus {
+  border-color: var(--red);
+}
+
+.text-input::placeholder {
+  color: var(--text3);
+}
+
 /* Divider label */
 .divider {
   font-family: var(--font-display);
@@ -612,39 +695,81 @@ body {
 <main class="main" id="main">
 
   <div id="scan-section">
-    <div class="divider">Photos</div>
-    <div class="photo-row">
-      <label class="photo-zone" id="zone-front" for="inp-front">
-        <img class="preview" id="prev-front" style="display:none">
-        <div class="zone-placeholder" id="ph-front">
-          <div class="zone-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 15.2l-3.2-3.2 1.4-1.4 1.8 1.8V9h2v3.4l1.8-1.8 1.4 1.4L12 15.2zM20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h4.05l1.83-2h4.24l1.83 2H20v12z"/></svg>
-          </div>
-          <div class="zone-label">Front</div>
-          <div class="zone-hint">Car face side</div>
-        </div>
-        <button class="remove-btn" id="rm-front" onclick="removePhoto('front', event)">×</button>
-        <input type="file" id="inp-front" accept="image/*" capture="environment" onchange="handleUpload('front', this)" style="display:none">
-      </label>
 
-      <label class="photo-zone" id="zone-back" for="inp-back">
-        <img class="preview" id="prev-back" style="display:none">
-        <div class="zone-placeholder" id="ph-back">
-          <div class="zone-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 15.2l-3.2-3.2 1.4-1.4 1.8 1.8V9h2v3.4l1.8-1.8 1.4 1.4L12 15.2zM20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h4.05l1.83-2h4.24l1.83 2H20v12z"/></svg>
-          </div>
-          <div class="zone-label">Back</div>
-          <div class="zone-hint">Series &amp; info</div>
-        </div>
-        <button class="remove-btn" id="rm-back" onclick="removePhoto('back', event)">×</button>
-        <input type="file" id="inp-back" accept="image/*" capture="environment" onchange="handleUpload('back', this)" style="display:none">
-      </label>
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-photo" onclick="switchMode('photo')">
+        <svg viewBox="0 0 24 24"><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h4.05l1.83-2h4.24l1.83 2H20v12zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
+        Photo Scan
+      </button>
+      <button class="mode-tab" id="tab-manual" onclick="switchMode('manual')">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12zM7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+        Manual Lookup
+      </button>
     </div>
 
-    <button class="scan-btn" id="scan-btn" onclick="scanCar()" disabled>
-      <svg viewBox="0 0 24 24"><path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M22 5h-6v6h6V5zm-6 8h1.5v1.5H16V13zm1.5 1.5H19V16h-1.5v-1.5zM19 13h1.5v1.5H19V13zm-3 3h1.5v1.5H16V16zm1.5 1.5H19V19h-1.5v-1.5zM19 16h1.5v1.5H19V16zm1.5-1.5H22V16h-1.5v-1.5zm0 3H22V19h-1.5v-1.5zM22 13h-1.5v1.5H22V13z"/></svg>
-      Identify This Car
-    </button>
+    <!-- Photo scan mode -->
+    <div class="photo-section" id="photo-section">
+      <div class="divider">Photos</div>
+      <div class="photo-row">
+        <label class="photo-zone" id="zone-front" for="inp-front">
+          <img class="preview" id="prev-front" style="display:none">
+          <div class="zone-placeholder" id="ph-front">
+            <div class="zone-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 15.2l-3.2-3.2 1.4-1.4 1.8 1.8V9h2v3.4l1.8-1.8 1.4 1.4L12 15.2zM20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h4.05l1.83-2h4.24l1.83 2H20v12z"/></svg>
+            </div>
+            <div class="zone-label">Front</div>
+            <div class="zone-hint">Car face side</div>
+          </div>
+          <button class="remove-btn" id="rm-front" onclick="removePhoto('front', event)">×</button>
+          <input type="file" id="inp-front" accept="image/*" capture="environment" onchange="handleUpload('front', this)" style="display:none">
+        </label>
+
+        <label class="photo-zone" id="zone-back" for="inp-back">
+          <img class="preview" id="prev-back" style="display:none">
+          <div class="zone-placeholder" id="ph-back">
+            <div class="zone-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 15.2l-3.2-3.2 1.4-1.4 1.8 1.8V9h2v3.4l1.8-1.8 1.4 1.4L12 15.2zM20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h4.05l1.83-2h4.24l1.83 2H20v12z"/></svg>
+            </div>
+            <div class="zone-label">Back</div>
+            <div class="zone-hint">Series &amp; info</div>
+          </div>
+          <button class="remove-btn" id="rm-back" onclick="removePhoto('back', event)">×</button>
+          <input type="file" id="inp-back" accept="image/*" capture="environment" onchange="handleUpload('back', this)" style="display:none">
+        </label>
+      </div>
+
+      <button class="scan-btn" id="scan-btn" onclick="scanCar()" disabled>
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M22 5h-6v6h6V5zm-6 8h1.5v1.5H16V13zm1.5 1.5H19V16h-1.5v-1.5zM19 13h1.5v1.5H19V13zm-3 3h1.5v1.5H16V16zm1.5 1.5H19V19h-1.5v-1.5zM19 16h1.5v1.5H19V16zm1.5-1.5H22V16h-1.5v-1.5zm0 3H22V19h-1.5v-1.5zM22 13h-1.5v1.5H22V13z"/></svg>
+        Identify This Car
+      </button>
+    </div>
+
+    <!-- Manual lookup mode -->
+    <div class="manual-section" id="manual-section">
+      <div class="divider">Car Details</div>
+
+      <div class="input-group">
+        <label class="input-label" for="inp-toynum">Toy # (Car #)</label>
+        <input class="text-input" type="text" id="inp-toynum" placeholder="e.g. HYX39, JJM00" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" oninput="updateLookupBtn()">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="inp-modelname">Model / Car Name</label>
+        <input class="text-input" type="text" id="inp-modelname" placeholder="e.g. Bone Shaker, Twin Mill" autocomplete="off" spellcheck="false" oninput="updateLookupBtn()">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="inp-year">Year <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input class="text-input" type="text" id="inp-year" placeholder="e.g. 2024" maxlength="4" inputmode="numeric" oninput="updateLookupBtn()">
+      </div>
+
+      <button class="scan-btn" id="lookup-btn" onclick="lookupCar()" disabled>
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        Look Up This Car
+      </button>
+    </div>
+
   </div>
 
   <div id="results-area"></div>
@@ -930,6 +1055,110 @@ function renderResult(car) {
   document.getElementById('results-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+
+function switchMode(mode) {
+  const photoSection = document.getElementById('photo-section');
+  const manualSection = document.getElementById('manual-section');
+  const tabPhoto = document.getElementById('tab-photo');
+  const tabManual = document.getElementById('tab-manual');
+
+  if (mode === 'photo') {
+    photoSection.classList.remove('hidden');
+    manualSection.classList.remove('visible');
+    tabPhoto.classList.add('active');
+    tabManual.classList.remove('active');
+  } else {
+    photoSection.classList.add('hidden');
+    manualSection.classList.add('visible');
+    tabPhoto.classList.remove('active');
+    tabManual.classList.add('active');
+  }
+  document.getElementById('results-area').innerHTML = '';
+}
+
+function updateLookupBtn() {
+  const toyNum = document.getElementById('inp-toynum').value.trim();
+  const modelName = document.getElementById('inp-modelname').value.trim();
+  document.getElementById('lookup-btn').disabled = !(toyNum || modelName);
+}
+
+async function lookupCar() {
+  const toyNum = document.getElementById('inp-toynum').value.trim();
+  const modelName = document.getElementById('inp-modelname').value.trim();
+  const year = document.getElementById('inp-year').value.trim();
+
+  const btn = document.getElementById('lookup-btn');
+  btn.disabled = true;
+  btn.textContent = 'Looking up...';
+
+  document.getElementById('results-area').innerHTML =
+    '<div class="loading-box"><div class="spinner"></div><div class="loading-title">Looking Up Car</div><div class="loading-sub">Searching Hot Wheels database &amp; market data…</div></div>';
+  document.getElementById('results-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const parts = [];
+  if (toyNum) parts.push('Toy #: ' + toyNum);
+  if (modelName) parts.push('Model/Car Name: ' + modelName);
+  if (year) parts.push('Year: ' + year);
+
+  const prompt = 'You are a Hot Wheels expert and collector with deep knowledge of every casting, series, and variant ever produced.
+
+The user has provided the following information about a Hot Wheels car:
+' + parts.join('
+') + '
+
+Using your knowledge of Hot Wheels history, identify this car as accurately as possible and fill in all fields. Return ONLY valid JSON (no markdown, no backticks, no preamble):
+
+{
+  "car_number": "Toy/item # if known or provided, else null",
+  "collector_number": "Collector # like 097/250 if known, else null",
+  "model_name": "Car model/casting name",
+  "series": "Series name if known, else null",
+  "series_number": "Position in series like 7/10 if known, else null",
+  "year_of_release": "4-digit year",
+  "color": "Primary body color if known, else null",
+  "wheel_type": "Wheel type code if known, else null",
+  "is_treasure_hunt": true or false,
+  "is_super_treasure_hunt": true or false,
+  "is_new_model": true or false,
+  "special_notes": "Any notable details about this casting, series, variants, or collector significance. Be specific and helpful.",
+  "market_value_low": estimated low price USD as number,
+  "market_value_mid": estimated mid price USD as number,
+  "market_value_high": estimated high price USD as number,
+  "market_confidence": "low", "medium", or "high",
+  "market_notes": "What drives value for this specific car"
+}
+
+Market value guidance: Regular mainline = $1-5 carded. Treasure Hunt = $5-15. Super Treasure Hunt = $15-60+. ZAMAC = $3-10. If the toy number or year is ambiguous and multiple variants exist, base values on the most common/likely version and note variants in special_notes.';
+
+  try {
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error('Server error ' + res.status + ': ' + errText.slice(0, 500));
+    }
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    const raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    const car = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    renderResult(car);
+  } catch (err) {
+    document.getElementById('results-area').innerHTML =
+      '<div class="error-box"><strong>Lookup failed</strong><br><br>' + err.message + '</div>';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:white"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Look Up This Car';
+  updateLookupBtn();
+}
+
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
 }
@@ -942,8 +1171,12 @@ function showToast(msg) {
 }
 
 function scanAgain() {
-  removePhoto('front', { stopPropagation: () => {} });
-  removePhoto('back', { stopPropagation: () => {} });
+  removePhoto('front', { preventDefault: () => {}, stopPropagation: () => {} });
+  removePhoto('back', { preventDefault: () => {}, stopPropagation: () => {} });
+  document.getElementById('inp-toynum').value = '';
+  document.getElementById('inp-modelname').value = '';
+  document.getElementById('inp-year').value = '';
+  updateLookupBtn();
   document.getElementById('results-area').innerHTML = '';
   document.getElementById('scan-section').scrollIntoView({ behavior: 'smooth' });
 }
